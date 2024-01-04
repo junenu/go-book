@@ -1,20 +1,21 @@
 package main
 
 import (
-  "encoding/csv"
-  "log"
-  "os"
-  "fmt"
-  "time"
+	"bufio"
+	"encoding/csv"
+	"encoding/json"
+	"fmt"
+	"io"
+	"log"
+	"os"
+	"time"
 
-  "bufio"
-  "io"
-
-  "golang.org/x/text/encoding/japanese"
-  "golang.org/x/text/transform"
+	"golang.org/x/text/encoding/japanese"
+	"golang.org/x/text/transform"
 )
 
 type holiday struct{
+	Date   string
 	Year   int
 	Month  int
 	Day    int
@@ -24,6 +25,7 @@ type holiday struct{
 const (
 	SJIS_CSV = "./csv/syukujitsu.csv"
 	UTF8_CSV = "./csv/syukujitsu_utf8.csv"
+	JSON_FILE = "./holidays.json"
 )
 
 func main() {
@@ -46,30 +48,42 @@ func main() {
 	if i == 0 {
 		continue //ヘッダをスキップ
 	}
-	date, err := time.Parse("2006/1/2", row[0])
+
+	d, err := time.Parse("2006/1/2", row[0])
 	if err != nil {
 		fmt.Println("Error parsing date:", err)
 		return
 	}
-	// 年、月、日を取得,月はstrで取れるためintに変換する
-	year, month, day := date.Year(), int(date.Month()), date.Day()
+	// 年、月、日を取得
+	year, month, day := d.Year(), int(d.Month()), d.Day()
 
+	date := d.Format("20060102") //yyyyMMddフォーマットに変換する
 	if err != nil {
 		fmt.Println("Error parsing date:", err)
 		return
 	}
 	holiday := holiday {
+		Date:  date,
 		Year:  year,
 		Month: month,
-		Day: day,
+		Day:   day,
 		Name:  row[1],
 	}
 	holidays = append(holidays, holiday)
 	}
 
+	f, err := os.Create(JSON_FILE) //jsonファイル作成
+
 	for _, h := range holidays {
-	fmt.Printf("日付: %d %d %d, 名前: %s\n", h.Year, h.Month, h.Day, h.Name)
-	}
+		j, err := json.MarshalIndent(h, "", " ")
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+
+		defer f.Close()
+		f.Write(j)
+	}	
 }
 
 func convert_sjis_utf8(from_file string,to_file string) {
