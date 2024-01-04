@@ -15,8 +15,13 @@ const (
 )
 
 func main() {
-	d := time.Now().Weekday()
-	if d == 0 || d == 6 {
+	IsWeekday("20240104")
+	IsWeekday("20231231")
+}
+
+func IsWeekday(d string){
+	date, _ := time.Parse("20060102", d)
+	if date.Weekday() == time.Saturday || date.Weekday() == time.Sunday {
 		fmt.Println("週末です")
 	} else {
 		fmt.Println("平日です！！！")
