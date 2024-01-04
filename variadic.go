@@ -14,8 +14,7 @@ import (
 	"golang.org/x/text/transform"
 )
 
-type holiday struct{
-	Date   string
+type HolidayInfo struct{
 	Year   int
 	Month  int
 	Day    int
@@ -42,18 +41,18 @@ func main() {
 	log.Fatal(err)
 	}
 
-	var holidays []holiday
+	holidays := make(map[string]HolidayInfo) //dateをキーとするマップ
 
 	for i, row := range rows {
 	if i == 0 {
 		continue //ヘッダをスキップ
-	}
+		}
 
 	d, err := time.Parse("2006/1/2", row[0])
 	if err != nil {
 		fmt.Println("Error parsing date:", err)
 		return
-	}
+		}
 	// 年、月、日を取得
 	year, month, day := d.Year(), int(d.Month()), d.Day()
 
@@ -61,30 +60,30 @@ func main() {
 	if err != nil {
 		fmt.Println("Error parsing date:", err)
 		return
-	}
-	holiday := holiday {
-		Date:  date,
+		}
+	holidays[date] = HolidayInfo {
 		Year:  year,
 		Month: month,
 		Day:   day,
 		Name:  row[1],
-	}
-	holidays = append(holidays, holiday)
-	}
-
-	f, err := os.Create(JSON_FILE) //jsonファイル作成
-
-	for _, h := range holidays {
-		j, err := json.MarshalIndent(h, "", " ")
-		if err != nil {
-			fmt.Println(err)
-			return
 		}
+	}
 
-		defer f.Close()
-		f.Write(j)
-	}	
-}
+	f, err := os.Create(JSON_FILE)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer f.Close()
+
+	j, err := json.MarshalIndent(holidays, "", " ")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	f.Write(j)
+}	
+
 
 func convert_sjis_utf8(from_file string,to_file string) {
 	// ShiftJISファイルを開く
