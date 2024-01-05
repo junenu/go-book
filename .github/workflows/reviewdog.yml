@@ -5,13 +5,16 @@ jobs:
     name: reviewdog
     runs-on: ubuntu-latest
     steps:
-      - uses: reviewdog/action-setup@v1
+      - uses: actions/checkout@v4
+      - name: Set up Go
+        uses: actions/setup-go@v2
         with:
-          reviewdog_version: latest
-      - name: Run reviewdog
+          go-version: '^1.17'
+      - name: Install golint
+        run: go install golang.org/x/lint/golint@latest
+      - name: Run reviewdog with golint
         env:
           REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          reviewdog -reporter=github-pr-check -f=golint < $(golint ./...)
-          reviewdog -reporter=github-pr-check -f=govet < $(go vet ./...)
-        
+        run: golint ./... | reviewdog -reporter=github-pr-check -f=golint
+      - name: Run reviewdog with govet
+        run: go vet ./... 2>&1 | reviewdog -reporter=github-pr-check -f=govet
