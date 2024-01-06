@@ -3,7 +3,6 @@ on:
   push:
     branches:
       - main
-      - master
 
 jobs:
   test:
@@ -13,11 +12,21 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Create File and Cat
+      - name: file download and diff 
         run: |
-          date > date.txt
-          cat date.txt
+          wget https://www8.cao.go.jp/chosei/shukujitsu/syukujitsu.csv
+          diff ./syukujitsu.csv ./csv/syukujitsu.csv > diff1.log
 
-      - name: show repository
-        run : | 
-          ls -la .
+      - name: file download and diff 
+        run: |
+          wget https://www8.cao.go.jp/chosei/shukujitsu/syukujitsu.csv
+          diff ./syukujitsu.csv ./csv/syukujitsu_utf8.csv > diff2.log
+
+      - name: show diff
+        run: |
+           cat ./diff*
+
+      - name: file remove
+        run: |
+           rm ./diff*
+           rm ./syukujitsu.csv
