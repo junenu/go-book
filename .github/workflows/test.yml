@@ -15,6 +15,7 @@ jobs:
       - name: file download and diff 
         run: |
            wget https://www8.cao.go.jp/chosei/shukujitsu/syukujitsu.csv
+           which diff
         
       - name: diff
         run: |
