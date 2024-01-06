@@ -1,0 +1,23 @@
+name: File Create
+on:
+  push:
+    branches:
+      - main
+      - master
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create File and Cat
+        run: |
+          date > date.txt
+          cat date.txt
+
+      - name: show repository
+        run : | 
+          ls -la .
