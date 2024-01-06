@@ -21,3 +21,12 @@ jobs:
       - name: echo success
         if: steps.diff.outcome == 'success'
         run: echo "success"
+    
+      - name: fail process
+        id: fail_process
+        run: exit 1
+        continue-on-error: true
+    
+      - name: echo fail
+        if: steps.fail_process.outcome == 'failure'
+        run: echo "fail"
