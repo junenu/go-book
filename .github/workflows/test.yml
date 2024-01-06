@@ -5,7 +5,7 @@ on:
       - main
 
 jobs:
-  test:
+  check_diff:
     runs-on: ubuntu-latest
 
     steps:
@@ -13,16 +13,11 @@ jobs:
         uses: actions/checkout@v4
 
       - name: file download and diff 
+        id: diff
         run: |
            wget https://www8.cao.go.jp/chosei/shukujitsu/syukujitsu.csv &&
-           /usr/bin/diff ./syukujitsu.csv ./csv/syukujitsu.csv > diff1.log &&
-           /usr/bin/diff ./syukujitsu.csv ./csv/syukujitsu_utf8.csv > diff2.log || true
+           /usr/bin/diff ./syukujitsu.csv ./csv/syukujitsu.csv
 
-      - name: show diff
-        run: |
-           cat ./diff*
-
-      - name: file remove
-        run: |
-           rm ./diff*
-           rm ./syukujitsu.csv
+      - name: echo success
+        if: steps.diff.outcome == 'success'
+        run: echo "success"
